@@ -28,7 +28,7 @@ if __name__ == "__main__":
     # Test Backprop on Seeds dataset
     seed(1)
     # load and prepare data
-    filename = 'resources/short_mnist_w_labels.csv'
+    filename = 'resources/seeds_dataset.csv'
     dataset = load_csv(filename)
     for i in range(len(dataset[0])-1):
         str_column_to_float(dataset, i)
@@ -40,7 +40,7 @@ if __name__ == "__main__":
     # evaluate algorithm
     n_folds = 5
     l_rate = 0.5
-    n_epoch = 100 #500
+    n_epoch = 500 #500
     n_hidden = 5
     scores = evaluate_algorithm(dataset, back_propagation, n_folds, l_rate, n_epoch, n_hidden)
     print('Scores: %s' % scores)
