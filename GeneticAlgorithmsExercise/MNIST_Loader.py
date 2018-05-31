@@ -1,46 +1,54 @@
-import mnist
+from mnist import MNIST
 from NetworkBackPropagation import *
-from random import seed
+from random import seed, sample
+from email.mime.application import MIMEApplication
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+from email.utils import COMMASPACE, formatdate
+from os.path import basename
+import os
+import smtplib
+
 
 def get_train_images():
-    mndata = mnist.MNIST('resources')
+    mndata = MNIST('resources')
     mndata.gz = True
     images, labels = mndata.load_training()
     return images, labels
 
 
-def create_csv_from_data(images ,labels):
+def create_csv_from_data(images, labels, filename, max_lines=-1):
     lines = []
     for i in xrange(len(labels)):
         to_add = list(images[i])
         to_add.extend([labels[i]])
         lines.append(','.join(str(x) for x in to_add))
-    with open('resources/mnist_w_labels.csv', 'wb') as csvfile:
-        for line in lines:
+    with open('resources/'+filename, 'wb') as csvfile:
+        for line in (lines if max_lines == -1 else sample(lines, max_lines)):
             csvfile.write(line + '\n')
 
 
-if __name__ == "__main__":
-    images, labels = get_train_images()
-    # create_csv_from_data(images, labels)
+def send_results_via_email(text, title):
+    server = smtplib.SMTP('smtp.gmail.com', 587)
+    server.starttls()
+    server.login("moshe.samson@mail.huji.ac.il", "moshe_samson770")
 
-    # Test Backprop on Seeds dataset
-    seed(1)
-    # load and prepare data
-    filename = 'resources/seeds_dataset.csv'
-    dataset = load_csv(filename)
-    for i in range(len(dataset[0])-1):
-        str_column_to_float(dataset, i)
-    # convert class column to integers
-    str_column_to_int(dataset, len(dataset[0])-1)
-    # normalize input variables
-    minmax = dataset_minmax(dataset)
-    normalize_dataset(dataset, minmax)
-    # evaluate algorithm
-    n_folds = 5
-    l_rate = 0.5
-    n_epoch = 500
-    n_hidden = 5
-    scores = evaluate_algorithm(dataset, back_propagation, n_folds, l_rate, n_epoch, n_hidden)
-    print('Scores: %s' % scores)
-    print('Mean Accuracy: %.3f%%' % (sum(scores)/float(len(scores))))
+    msg = MIMEMultipart()
+    msg['From'] = "moshe.samson@mail.huji.ac.il"
+    msg['To'] = COMMASPACE.join("samson.moshe@gmail.com")
+    msg['Date'] = formatdate(localtime=True)
+    msg['Subject'] = title
+
+    msg.attach(MIMEText(text))
+
+    # for f in [title+"_max_path.png", title+"_fcc_hmValues_graph.png"]:
+    #     with open(f, "rb") as fil:
+    #         part = MIMEApplication(
+    #             fil.read(),
+    #             Name=basename(f)
+    #         )
+    #     # After the file is closed
+    #     part['Content-Disposition'] = 'attachment; filename="%s"' % basename(f)
+    #     msg.attach(part)
+    server.sendmail("moshe.samson@mail.huji.ac.il", "samson.moshe@gmail.com", msg.as_string())
+    server.quit()

@@ -3,6 +3,7 @@ from random import random
 from csv import reader
 from math import exp
 
+
 # Load a CSV file
 def load_csv(filename):
     dataset = list()
@@ -14,11 +15,13 @@ def load_csv(filename):
             dataset.append(row)
     return dataset
 
+
 # Convert string column to float
 def str_column_to_float(dataset, column):
     for row in dataset:
         s = row[column].strip()
         row[column] = float(row[column].strip())
+
 
 # Convert string column to integer
 def str_column_to_int(dataset, column):
@@ -31,17 +34,20 @@ def str_column_to_int(dataset, column):
         row[column] = lookup[row[column]]
     return lookup
 
+
 # Find the min and max values for each column
 def dataset_minmax(dataset):
     minmax = list()
     stats = [[min(column), max(column)] for column in zip(*dataset)]
     return stats
 
+
 # Rescale dataset columns to the range 0-1
 def normalize_dataset(dataset, minmax):
     for row in dataset:
-        for i in range(len(row)-1):
+        for i in range(len(row) - 1):
             row[i] = (row[i] - minmax[i][0]) / (minmax[i][1] - minmax[i][0]) if minmax[i][1] - minmax[i][0] != 0 else 0
+
 
 # Split a dataset into k folds
 def cross_validation_split(dataset, n_folds):
@@ -56,6 +62,7 @@ def cross_validation_split(dataset, n_folds):
         dataset_split.append(fold)
     return dataset_split
 
+
 # Calculate accuracy percentage
 def accuracy_metric(actual, predicted):
     correct = 0
@@ -63,6 +70,7 @@ def accuracy_metric(actual, predicted):
         if actual[i] == predicted[i]:
             correct += 1
     return correct / float(len(actual)) * 100.0
+
 
 # Evaluate an algorithm using a cross validation split
 def evaluate_algorithm(dataset, algorithm, n_folds, *args):
@@ -83,16 +91,19 @@ def evaluate_algorithm(dataset, algorithm, n_folds, *args):
         scores.append(accuracy)
     return scores
 
+
 # Calculate neuron activation for an input
 def activate(weights, inputs):
     activation = weights[-1]
-    for i in range(len(weights)-1):
+    for i in range(len(weights) - 1):
         activation += weights[i] * inputs[i]
     return activation
+
 
 # Transfer neuron activation
 def transfer(activation):
     return 1.0 / (1.0 + exp(-activation))
+
 
 # Forward propagate input to a network output
 def forward_propagate(network, row):
@@ -106,16 +117,18 @@ def forward_propagate(network, row):
         inputs = new_inputs
     return inputs
 
+
 # Calculate the derivative of an neuron output
 def transfer_derivative(output):
     return output * (1.0 - output)
+
 
 # Backpropagate error and store in neurons
 def backward_propagate_error(network, expected):
     for i in reversed(range(len(network))):
         layer = network[i]
         errors = list()
-        if i != len(network)-1:
+        if i != len(network) - 1:
             for j in range(len(layer)):
                 error = 0.0
                 for neuron in network[i + 1]:
@@ -129,6 +142,7 @@ def backward_propagate_error(network, expected):
             neuron = layer[j]
             neuron['delta'] = errors[j] * transfer_derivative(neuron['output'])
 
+
 # Update network weights with error
 def update_weights(network, row, l_rate):
     for i in range(len(network)):
@@ -140,6 +154,7 @@ def update_weights(network, row, l_rate):
                 neuron['weights'][j] += l_rate * neuron['delta'] * inputs[j]
             neuron['weights'][-1] += l_rate * neuron['delta']
 
+
 # Train a network for a fixed number of epochs
 def train_network(network, train, l_rate, n_epoch, n_outputs):
     for epoch in range(n_epoch):
@@ -150,21 +165,24 @@ def train_network(network, train, l_rate, n_epoch, n_outputs):
             backward_propagate_error(network, expected)
             update_weights(network, row, l_rate)
 
+
 # Initialize a network
 def initialize_network(n_inputs, n_hidden, n_outputs):
     network = list()
-    hidden_layer = [{'weights':[random() for i in range(n_inputs + 1)]} for i in range(n_hidden)]
+    hidden_layer = [{'weights': [random() for i in range(n_inputs + 1)]} for i in range(128)]
     network.append(hidden_layer)
-    hidden_layer_2 = [{'weights':[random() for i in range(n_hidden)]} for i in range(n_hidden)]
+    hidden_layer_2 = [{'weights': [random() for i in range(128)]} for i in range(64)]
     network.append(hidden_layer_2)
-    output_layer = [{'weights':[random() for i in range(n_hidden + 1)]} for i in range(n_outputs)]
+    output_layer = [{'weights': [random() for i in range(64)]} for i in range(n_outputs)]
     network.append(output_layer)
     return network
+
 
 # Make a prediction with a network
 def predict(network, row):
     outputs = forward_propagate(network, row)
     return outputs.index(max(outputs))
+
 
 # Backpropagation Algorithm With Stochastic Gradient Descent
 def back_propagation(train, test, l_rate, n_epoch, n_hidden):
@@ -177,6 +195,4 @@ def back_propagation(train, test, l_rate, n_epoch, n_hidden):
     for row in test:
         prediction = predict(network, row)
         predictions.append(prediction)
-    return(predictions)
-
-
+    return (predictions)
