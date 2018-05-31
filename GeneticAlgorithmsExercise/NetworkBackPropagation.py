@@ -1,5 +1,3 @@
-# Backprop on the Seeds Dataset
-from random import seed
 from random import randrange
 from random import random
 from csv import reader

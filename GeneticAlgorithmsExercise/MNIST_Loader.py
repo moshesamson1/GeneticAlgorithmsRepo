@@ -1,10 +1,9 @@
 import mnist
-import csv
-from mnist import MNIST
 from NetworkBackPropagation import *
+from random import seed
 
 def get_train_images():
-    mndata = MNIST('resources')
+    mndata = mnist.MNIST('resources')
     mndata.gz = True
     images, labels = mndata.load_training()
     return images, labels
@@ -40,7 +39,7 @@ if __name__ == "__main__":
     # evaluate algorithm
     n_folds = 5
     l_rate = 0.5
-    n_epoch = 500 #500
+    n_epoch = 500
     n_hidden = 5
     scores = evaluate_algorithm(dataset, back_propagation, n_folds, l_rate, n_epoch, n_hidden)
     print('Scores: %s' % scores)
