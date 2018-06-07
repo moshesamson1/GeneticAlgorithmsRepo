@@ -24,7 +24,7 @@ if __name__ == "__main__":
     # evaluate algorithm
     n_folds = 5 # remove this n_folds! we have train and test datasets
     l_rate = 0.5
-    n_epoch = 50
+    n_epoch = 500
     n_hidden = 5
     scores = evaluate_algorithm(dataset, back_propagation, n_folds, l_rate, n_epoch, n_hidden)
     print('Scores: %s' % scores)
